@@ -1,1 +1,23 @@
+package com.example.alarmgenerator;
+
+import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api")
+public class AlarmController {
+
+    private final AlarmService alarmService;
+
+    public AlarmController(AlarmService alarmService) {
+        this.alarmService = alarmService;
+    }
+
+    @GetMapping("/generate")
+    public Map<String, Object> generateAlarmOnlyIds(@RequestBody OutputRequest request) throws IOException {
+        return alarmService.generateAlarmIdFile(request.getOutputDir());
+    }
+}
 
