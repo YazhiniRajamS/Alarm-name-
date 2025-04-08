@@ -1,0 +1,47 @@
+package com.example.alarmgenerator;
+
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.regex.*;
+
+@Service
+public class AlarmService {
+
+    private static final String INPUT_PATH = "/home/test/Downloads/File-fault/alarm_reply.xml";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FILE_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss");
+
+    public Map<String, Object> generateAlarmFile(String outputDir) throws IOException {
+        String content = Files.readString(Paths.get(INPUT_PATH));
+
+        // Extract all alarm IDs
+        List<String> alarmIds = new ArrayList<>();
+        Pattern idPattern = Pattern.compile("<(?:id|td)>(\\d+)</(?:id|td)>");
+        Matcher idMatcher = idPattern.matcher(content);
+        while (idMatcher.find()) {
+            alarmIds.add(idMatcher.group(1));
+        }
+
+        // Replace all <time-created> with current timestamp
+        String currentTimestamp = LocalDateTime.now().format(FORMATTER);
+        content = content.replaceAll("<time-created>.*?</time-created>", "<time-created>" + currentTimestamp + "</time-created>");
+
+        // Write the updated file
+        String fileName = "alarm_" + LocalDateTime.now().format(FILE_FORMATTER) + ".xml";
+        Path outputPath = Paths.get(outputDir);
+        Files.createDirectories(outputPath);
+        Path finalPath = outputPath.resolve(fileName);
+        Files.writeString(finalPath, content);
+
+        // Prepare response
+        Map<String, Object> result = new HashMap<>();
+        result.put("alarmNames", alarmIds);
+        result.put("filePath", finalPath.toString());
+        return result;
+    }
+}
