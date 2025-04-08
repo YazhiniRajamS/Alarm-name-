@@ -1,23 +1,21 @@
 package com.example.demo.controller;
 
-import com.example.demo.service.AlarmGeneratorService;
+import com.example.demo.service.AlarmIdGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-public class AlarmGeneratorController {
+public class AlarmIdController {
 
     @Autowired
-    private AlarmGeneratorService alarmGeneratorService;
+    private AlarmIdGeneratorService generatorService;
 
-    @GetMapping("/generate")
-    public ResponseEntity<?> generateAlarmFile(@RequestBody Map<String, String> request) {
+    @PostMapping("/generate")
+    public Map<String, String> generateAlarmIdFile(@RequestBody Map<String, String> request) {
         String outputDir = request.get("outputDir");
-        return alarmGeneratorService.generateAlarmFile(outputDir);
+        return generatorService.generateFile(outputDir);
     }
 }
-
